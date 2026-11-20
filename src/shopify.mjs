@@ -18,6 +18,7 @@ export const PRODUCTS_BULK_QUERY = `
         vendor
         productType
         status
+        onlineStoreUrl
         media {
           edges {
             node {
@@ -65,7 +66,7 @@ export function validateConfig({ shopDomain, apiVersion }) {
 //  2) SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET (apps del Dev Dashboard:
 //     se pide un token temporal en cada corrida).
 export async function getAccessToken({ shopDomain, adminToken, clientId, clientSecret }) {
-  if (adminToken) return adminToken;
+  if (adminToken) return maskInLogs(adminToken);
   if (!clientId || !clientSecret) {
     throw new ShopifyError(
       'Falta la credencial de Shopify: definí SHOPIFY_ADMIN_TOKEN, o SHOPIFY_CLIENT_ID y SHOPIFY_CLIENT_SECRET.',
@@ -80,7 +81,13 @@ export async function getAccessToken({ shopDomain, adminToken, clientId, clientS
   if (!res.ok) throw new ShopifyError(`Shopify rechazó el pedido de token (HTTP ${res.status}). Revisá el client ID/secret.`);
   const body = await res.json();
   if (!body.access_token) throw new ShopifyError('Shopify no devolvió un token de acceso.');
-  return body.access_token;
+  return maskInLogs(body.access_token);
+}
+
+// En GitHub Actions, pide que el valor se tape con *** si alguna vez aparece en un registro.
+function maskInLogs(value) {
+  if (process.env.GITHUB_ACTIONS === 'true') console.log(`::add-mask::${value}`);
+  return value;
 }
 
 export function createClient({ shopDomain, apiVersion, token }) {
@@ -164,9 +171,10 @@ export async function fetchProductsJsonl(client, { log = console.log, timeoutMs 
   if (!op.url) return []; // la tienda no devolvió resultados
 
   const url = new URL(op.url);
-  if (url.protocol !== 'https:') throw new ShopifyError('La URL de descarga de Shopify no es https.');
+  const trustedHost = /(^|\.)(googleapis\.com|shopifycloud\.com|shopify\.com)$/.test(url.hostname);
+  if (url.protocol !== 'https:' || !trustedHost) throw new ShopifyError('La URL de descarga de Shopify no es de un dominio esperado.');
   // Descarga sin token: es una URL firmada y temporal.
-  const res = await fetch(url, { redirect: 'follow' });
+  const res = await fetch(url, { redirect: 'error' });
   if (!res.ok) throw new ShopifyError(`No se pudo descargar el resultado (HTTP ${res.status}).`);
   const text = await res.text();
   return text.split('\n');

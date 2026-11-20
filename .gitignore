@@ -3,6 +3,11 @@
 .env.*
 *.pem
 *.key
+*.p12
+*.pfx
+*.token
+*credentials*.json
+.npmrc
 secrets*
 
 # Archivos generados

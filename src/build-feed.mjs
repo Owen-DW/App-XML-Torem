@@ -20,7 +20,7 @@ const config = {
   outputFile: 'catalogo.xml',
   // Freno de seguridad: si salen menos ítems que esto, NO se publica
   // (queda online la última versión buena).
-  minItems: env.MIN_ITEMS?.trim() ? Number(env.MIN_ITEMS) : 1000,
+  minItems: !env.MIN_ITEMS?.trim() ? 1000 : /^\d+$/.test(env.MIN_ITEMS.trim()) ? Number(env.MIN_ITEMS.trim()) : NaN,
 };
 
 function fail(message) {
@@ -34,7 +34,7 @@ function validatePublicConfig() {
   if (url.protocol !== 'https:') fail('PUBLIC_STORE_URL tiene que empezar con https://');
   if (url.hostname.endsWith('.myshopify.com')) fail('PUBLIC_STORE_URL tiene que ser el dominio público, no el .myshopify.com');
   if (!/^[A-Z]{3}$/.test(config.currency)) fail('FEED_CURRENCY tiene que ser un código de 3 letras (ej. ARS).');
-  if (!Number.isInteger(config.minItems) || config.minItems < 0) fail('MIN_ITEMS tiene que ser un número entero.');
+  if (!Number.isInteger(config.minItems) || config.minItems < 0) fail('MIN_ITEMS tiene que ser un número entero (solo dígitos).');
 }
 
 async function loadLines() {
@@ -65,6 +65,7 @@ function report(stats) {
     `Excluidos sin imagen: ${e.no_image}`,
     `Excluidos con precio 0: ${e.price_zero}`,
     `Excluidos no activos: ${e.not_active}`,
+    `Excluidos no publicados en la tienda online: ${e.not_published}`,
     `SKUs vacíos (se usó el ID de variante): ${stats.emptySkus}`,
     `SKUs demasiado largos (se usó el ID de variante): ${stats.skuTooLong}`,
     `SKUs duplicados: ${stats.duplicateSkus.length}`,
@@ -84,7 +85,7 @@ async function main() {
   const { items, stats } = buildItems(products, config);
   const summary = report(stats);
 
-  if (items.length < config.minItems) {
+  if (items.length === 0 || items.length < config.minItems) {
     fail(`Se generaron ${items.length} ítems, menos que el mínimo (${config.minItems}). No se publica para no pisar el feed bueno.`);
   }
 

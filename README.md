@@ -4,7 +4,7 @@ Robot que genera, **cada 3 horas y solo**, el catálogo de productos de Monococo
 
 - **URL del feed:** `https://owen-dw.github.io/App-XML-Torem/catalogo.xml`
   (la URL exacta aparece en cada corrida, en el paso *deploy*. Usá esa.)
-- **Qué incluye:** productos activos, publicados en la tienda online, con stock, con imagen y con precio mayor a 0.
+- **Qué incluye:** productos activos, publicados en la tienda online (no los de otros canales, como mayorista), con stock, con imagen y con precio mayor a 0.
 - **Qué NO incluye:** borradores, archivados, sin stock, sin foto o con precio 0.
 
 ## Cómo funciona
@@ -47,10 +47,11 @@ Repo → *Actions → Feed XML Monococo → Run workflow*.
 
 En una computadora (con Node 20 o superior):
 ```bash
-SHOPIFY_ADMIN_TOKEN=... npm run build      # genera public/catalogo.xml
-npm test                                   # pruebas sin conexión
-npm run build:sample                       # feed de ejemplo con datos ficticios
+# Pide el token sin mostrarlo en pantalla ni guardarlo en el historial
+read -rs SHOPIFY_ADMIN_TOKEN && export SHOPIFY_ADMIN_TOKEN && npm run build
 ```
+Otras opciones: `npm test` (pruebas sin conexión) y `npm run build:sample` (feed de ejemplo con datos ficticios).
+Nunca escribas el token directo en el comando (`SHOPIFY_ADMIN_TOKEN=shpat_... npm run build`): queda guardado en el historial de la terminal.
 
 ### Cambiar la frecuencia
 En `.github/workflows/feed.yml`, línea `cron`:
@@ -112,5 +113,6 @@ Medidas que ya trae el proyecto:
 Para activar en GitHub (*Settings → Code security*), si el repo es público:
 - **Secret scanning** y **Push protection**: bloquean un commit si detectan una clave por error.
 - *Settings → Actions → General*: "Fork pull request workflows" → **Require approval for all outside collaborators**.
+- *Settings → Environments → github-pages*: en "Deployment branches" dejá **solo `main`**, así nadie puede publicar desde otra rama.
 
 **Si se filtró una credencial:** rotala ya (ver arriba). Borrar el commit no alcanza: la clave tiene que quedar invalidada.

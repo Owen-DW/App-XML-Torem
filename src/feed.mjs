@@ -128,7 +128,7 @@ export function buildItems(products, { storeUrl, currency }) {
     productsRead: products.length,
     variantsRead: 0,
     exported: 0,
-    excluded: { not_active: 0, no_image: 0, price_zero: 0, out_of_stock: 0 },
+    excluded: { not_active: 0, not_published: 0, no_image: 0, price_zero: 0, out_of_stock: 0 },
     emptySkus: 0,
     duplicateSkus: [],
     skuTooLong: 0,
@@ -141,6 +141,7 @@ export function buildItems(products, { storeUrl, currency }) {
     stats.variantsRead += variants.length;
     const reasonForAll =
       product.status && product.status !== 'ACTIVE' ? 'not_active'
+      : !product.onlineStoreUrl ? 'not_published' // solo lo publicado en la tienda online
       : !(product.images || []).some(isHttpsUrl) ? 'no_image'
       : null;
     if (reasonForAll) { stats.excluded[reasonForAll] += variants.length; continue; }

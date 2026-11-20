@@ -10,7 +10,7 @@ const byVariant = Object.fromEntries(items.map((i) => [i.variantId, i]));
 
 test('exporta solo variantes con stock, imagen y precio', () => {
   assert.deepEqual(Object.keys(byVariant).sort(), ['101', '201', '202', '205']);
-  assert.deepEqual(stats.excluded, { not_active: 0, no_image: 1, price_zero: 1, out_of_stock: 2 });
+  assert.deepEqual(stats.excluded, { not_active: 0, not_published: 1, no_image: 1, price_zero: 1, out_of_stock: 2 });
   assert.equal(stats.exported, 4);
 });
 

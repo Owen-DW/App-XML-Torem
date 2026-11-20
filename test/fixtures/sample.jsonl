@@ -1,17 +1,20 @@
-{"id":"gid://shopify/Product/1","handle":"calendario-adviento","title":"Calendario de Adviento Monococo","descriptionHtml":"<p>Calendario <strong>exclusivo</strong> &amp; divertido.</p><script>alert(1)</script><p>Edad: 3&nbsp;años &lt;3</p>","vendor":"Monococo","productType":"Navidad","status":"ACTIVE"}
+{"id":"gid://shopify/Product/1","handle":"calendario-adviento","title":"Calendario de Adviento Monococo","descriptionHtml":"<p>Calendario <strong>exclusivo</strong> &amp; divertido.</p><script>alert(1)</script><p>Edad: 3&nbsp;años &lt;3</p>","vendor":"Monococo","productType":"Navidad","status":"ACTIVE","onlineStoreUrl":"https://monococojugueterias.com/products/x"}
 {"id":"gid://shopify/MediaImage/11","image":{"url":"https://cdn.shopify.com/a1.jpg"},"__parentId":"gid://shopify/Product/1"}
 {"id":"gid://shopify/MediaImage/12","image":{"url":"https://cdn.shopify.com/a2.jpg"},"__parentId":"gid://shopify/Product/1"}
 {"id":"gid://shopify/Video/13","__parentId":"gid://shopify/Product/1"}
 {"id":"gid://shopify/ProductVariant/101","title":"Default Title","sku":"ADV-001","price":"9999.0","compareAtPrice":"12999.5","availableForSale":true,"inventoryQuantity":5,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/1"}
-{"id":"gid://shopify/Product/2","handle":"pelota","title":"Pelota \"Rebote\" <XL>","descriptionHtml":"","vendor":"Marca & Cía","productType":"Pelotas","status":"ACTIVE"}
+{"id":"gid://shopify/Product/2","handle":"pelota","title":"Pelota \"Rebote\" <XL>","descriptionHtml":"","vendor":"Marca & Cía","productType":"Pelotas","status":"ACTIVE","onlineStoreUrl":"https://monococojugueterias.com/products/x"}
 {"id":"gid://shopify/MediaImage/21","image":{"url":"https://cdn.shopify.com/b1.jpg"},"__parentId":"gid://shopify/Product/2"}
 {"id":"gid://shopify/ProductVariant/201","title":"Roja","sku":"DUP","price":"1500","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":3,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/2"}
 {"id":"gid://shopify/ProductVariant/202","title":"Azul","sku":"DUP","price":"1500","compareAtPrice":"1000","availableForSale":true,"inventoryQuantity":1,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/2"}
 {"id":"gid://shopify/ProductVariant/203","title":"Verde","sku":"","price":"1500","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":0,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/2"}
 {"id":"gid://shopify/ProductVariant/204","title":"Negra","sku":"","price":"0","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":4,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/2"}
 {"id":"gid://shopify/ProductVariant/205","title":"Blanca","sku":" ","price":"1500","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":2,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/2"}
-{"id":"gid://shopify/Product/3","handle":"sin-foto","title":"Sin foto","descriptionHtml":"x","vendor":"X","productType":"Y","status":"ACTIVE"}
+{"id":"gid://shopify/Product/3","handle":"sin-foto","title":"Sin foto","descriptionHtml":"x","vendor":"X","productType":"Y","status":"ACTIVE","onlineStoreUrl":"https://monococojugueterias.com/products/x"}
 {"id":"gid://shopify/ProductVariant/301","title":"Default Title","sku":"NF","price":"100","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":9,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/3"}
-{"id":"gid://shopify/Product/4","handle":"agotado","title":"Agotado","descriptionHtml":"x","vendor":"X","productType":"Y","status":"ACTIVE"}
+{"id":"gid://shopify/Product/4","handle":"agotado","title":"Agotado","descriptionHtml":"x","vendor":"X","productType":"Y","status":"ACTIVE","onlineStoreUrl":"https://monococojugueterias.com/products/x"}
 {"id":"gid://shopify/MediaImage/41","image":{"url":"https://cdn.shopify.com/d1.jpg"},"__parentId":"gid://shopify/Product/4"}
 {"id":"gid://shopify/ProductVariant/401","title":"Default Title","sku":"AG","price":"100","compareAtPrice":null,"availableForSale":false,"inventoryQuantity":0,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/4"}
+{"id":"gid://shopify/Product/5","handle":"b2b","title":"Solo mayorista","descriptionHtml":"x","vendor":"X","productType":"Y","status":"ACTIVE","onlineStoreUrl":null}
+{"id":"gid://shopify/MediaImage/51","image":{"url":"https://cdn.shopify.com/e1.jpg"},"__parentId":"gid://shopify/Product/5"}
+{"id":"gid://shopify/ProductVariant/501","title":"Default Title","sku":"B2B","price":"100","compareAtPrice":null,"availableForSale":true,"inventoryQuantity":9,"inventoryItem":{"tracked":true},"__parentId":"gid://shopify/Product/5"}
