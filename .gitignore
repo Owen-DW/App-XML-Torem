@@ -1,0 +1,13 @@
+# Credenciales: nunca se suben
+.env
+.env.*
+*.pem
+*.key
+secrets*
+
+# Archivos generados
+public/
+dist-sample/
+node_modules/
+*.jsonl
+!test/fixtures/*.jsonl
