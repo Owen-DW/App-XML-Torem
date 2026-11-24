@@ -123,6 +123,10 @@ export function createClient({ shopDomain, apiVersion, token }) {
         if (throttled && attempt < 5) { await sleep(2000 * attempt); continue; }
         throw new ShopifyError(`Error de GraphQL: ${body.errors.map((e) => e.message).join(' | ')}`);
       }
+      const throttle = body.extensions?.cost?.throttleStatus;
+      if (throttle && throttle.currentlyAvailable < 400 && throttle.restoreRate > 0) {
+        await sleep(Math.ceil(((400 - throttle.currentlyAvailable) / throttle.restoreRate) * 1000));
+      }
       return body.data;
     }
     throw new ShopifyError('Shopify no respondió.');
@@ -178,4 +182,70 @@ export async function fetchProductsJsonl(client, { log = console.log, timeoutMs 
   if (!res.ok) throw new ShopifyError(`No se pudo descargar el resultado (HTTP ${res.status}).`);
   const text = await res.text();
   return text.split('\n');
+}
+
+// ---------- Lectura por tandas (paginada) ----------
+// Las llaves del Dev Dashboard (client credentials) no pueden usar la
+// exportación masiva, así que pedimos los productos de a tandas.
+
+const PRODUCT_FIELDS = `
+  id handle title descriptionHtml vendor productType status onlineStoreUrl
+  media(first: 11) { nodes { id ... on MediaImage { image { url } } } }
+  variants(first: 20) {
+    pageInfo { hasNextPage endCursor }
+    nodes { ...V }
+  }`;
+
+const VARIANT_FRAGMENT = `
+fragment V on ProductVariant {
+  id title sku price compareAtPrice availableForSale inventoryQuantity
+  inventoryItem { tracked }
+}`;
+
+const PRODUCTS_PAGE = `
+query page($cursor: String) {
+  products(first: 10, after: $cursor, query: "status:active AND published_status:published") {
+    pageInfo { hasNextPage endCursor }
+    nodes { ${PRODUCT_FIELDS} }
+  }
+}
+${VARIANT_FRAGMENT}`;
+
+const MORE_VARIANTS = `
+query more($id: ID!, $cursor: String) {
+  product(id: $id) {
+    variants(first: 100, after: $cursor) {
+      pageInfo { hasNextPage endCursor }
+      nodes { ...V }
+    }
+  }
+}
+${VARIANT_FRAGMENT}`;
+
+// Devuelve los productos con el mismo formato que assembleProducts().
+export async function fetchProductsPaginated(client, { log = console.log } = {}) {
+  const products = [];
+  let cursor = null;
+  let page = 0;
+  do {
+    const data = await client.graphql(PRODUCTS_PAGE, { cursor });
+    const conn = data.products;
+    for (const node of conn.nodes) {
+      const variants = [...node.variants.nodes];
+      let vInfo = node.variants.pageInfo;
+      while (vInfo.hasNextPage) {
+        const more = (await client.graphql(MORE_VARIANTS, { id: node.id, cursor: vInfo.endCursor })).product.variants;
+        variants.push(...more.nodes);
+        vInfo = more.pageInfo;
+      }
+      const images = node.media.nodes.map((m) => m.image?.url).filter(Boolean);
+      const { media, variants: _v, ...fields } = node;
+      products.push({ ...fields, variants, images });
+    }
+    cursor = conn.pageInfo.hasNextPage ? conn.pageInfo.endCursor : null;
+    page++;
+    if (page % 50 === 0) log(`Leídos ${products.length} productos...`);
+  } while (cursor);
+  log(`Lectura completa: ${products.length} productos.`);
+  return products;
 }
