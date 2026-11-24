@@ -8,7 +8,7 @@
 import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { assembleProducts, buildItems, renderXml } from './feed.mjs';
-import { ShopifyError, createClient, fetchProductsJsonl, getAccessToken, validateConfig } from './shopify.mjs';
+import { ShopifyError, createClient, fetchProductsJsonl, fetchProductsPaginated, getAccessToken, validateConfig } from './shopify.mjs';
 
 const env = process.env;
 const config = {
@@ -37,12 +37,12 @@ function validatePublicConfig() {
   if (!Number.isInteger(config.minItems) || config.minItems < 0) fail('MIN_ITEMS tiene que ser un número entero (solo dígitos).');
 }
 
-async function loadLines() {
+async function loadProducts() {
   const i = process.argv.indexOf('--from-file');
   if (i !== -1) {
     const file = process.argv[i + 1];
     if (!file) fail('Falta la ruta después de --from-file');
-    return (await readFile(file, 'utf8')).split('\n');
+    return assembleProducts((await readFile(file, 'utf8')).split('\n'));
   }
   validateConfig(config);
   const token = await getAccessToken({
@@ -52,7 +52,12 @@ async function loadLines() {
     clientSecret: env.SHOPIFY_CLIENT_SECRET?.trim(),
   });
   const client = createClient({ shopDomain: config.shopDomain, apiVersion: config.apiVersion, token });
-  return fetchProductsJsonl(client);
+  // Con token fijo usamos la exportación masiva (más rápida). Las llaves del
+  // Dev Dashboard no la tienen permitida: en ese caso leemos por tandas.
+  if (env.SHOPIFY_ADMIN_TOKEN?.trim() && env.FEED_MODE !== 'paginated') {
+    return assembleProducts(await fetchProductsJsonl(client));
+  }
+  return fetchProductsPaginated(client);
 }
 
 function report(stats) {
@@ -80,8 +85,7 @@ function report(stats) {
 
 async function main() {
   validatePublicConfig();
-  const lines = await loadLines();
-  const products = assembleProducts(lines);
+  const products = await loadProducts();
   const { items, stats } = buildItems(products, config);
   const summary = report(stats);
 
