@@ -1,0 +1,72 @@
+name: Feed XML Monococo
+
+on:
+  schedule:
+    # Cada 3 horas, en el minuto 17 (UTC). Para pasar a cada 1 hora: '17 * * * *'
+    - cron: '17 */3 * * *'
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['src/**', 'package.json', '.github/workflows/feed.yml']
+
+# Por defecto, ningún permiso. Cada job pide solo lo que necesita.
+permissions: {}
+
+# Nunca dos corridas a la vez (Shopify solo permite una exportación por app).
+concurrency:
+  group: feed-xml
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Bajar el código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Pruebas
+        run: npm test
+
+      - name: Generar feed desde Shopify
+        env:
+          # Credenciales: solo existen en este paso. Usar UNA de las dos formas.
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          # Configuración no secreta (opcional; si están vacías se usan los valores por defecto).
+          SHOPIFY_STORE_DOMAIN: ${{ vars.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_API_VERSION: ${{ vars.SHOPIFY_API_VERSION }}
+          PUBLIC_STORE_URL: ${{ vars.PUBLIC_STORE_URL }}
+          FEED_CURRENCY: ${{ vars.FEED_CURRENCY }}
+          MIN_ITEMS: ${{ vars.MIN_ITEMS }}
+        run: node src/build-feed.mjs
+
+      - name: Validar que el XML esté bien formado
+        run: |
+          command -v xmllint >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils)
+          xmllint --noout public/catalogo.xml
+
+      - name: Preparar publicación
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}catalogo.xml
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
