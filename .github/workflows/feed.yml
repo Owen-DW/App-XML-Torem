@@ -2,7 +2,8 @@ name: Feed XML Monococo
 
 on:
   schedule:
-    # Cada 3 horas, en el minuto 17 (UTC). Para pasar a cada 1 hora: '17 * * * *'
+    # Cada 3 horas, en el minuto 17 (UTC) = 00:17, 03:17, 06:17... hora Argentina.
+    # Para pasar a cada 1 hora: '17 * * * *'
     - cron: '17 */3 * * *'
   workflow_dispatch: {}
   push:
