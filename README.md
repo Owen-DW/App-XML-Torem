@@ -1,6 +1,6 @@
 # App-XML-Torem
 
-Robot que genera, **cada 3 horas y solo**, el catálogo de productos de Monococo en formato **feed de Meta** (RSS 2.0 XML) y lo publica en una URL fija para cargar en Torem.
+Robot que genera, **cada 1 hora y solo**, el catálogo de productos de Monococo en formato **feed de Meta** (RSS 2.0 XML) y lo publica en una URL fija para cargar en Torem.
 
 - **URL del feed:** `https://owen-dw.github.io/App-XML-Torem/catalogo.xml`
   (la URL exacta aparece en cada corrida, en el paso *deploy*. Usá esa.)
@@ -10,10 +10,10 @@ Robot que genera, **cada 3 horas y solo**, el catálogo de productos de Monococo
 ## Cómo funciona
 
 ```
-Shopify (solo lectura) ──> GitHub Actions cada 3 h ──> catalogo.xml ──> GitHub Pages ──> Torem
+Shopify (solo lectura) ──> GitHub Actions cada 1 h ──> catalogo.xml ──> GitHub Pages ──> Torem
 ```
 
-1. GitHub Actions se despierta cada 3 horas.
+1. GitHub Actions se despierta cada 1 hora (GitHub puede atrasar o saltear algún turno en horarios de mucha demanda).
 2. Le pide a Shopify una exportación completa del catálogo (Bulk Operation: una sola consulta, sin límite de páginas).
 3. Filtra, arma el XML y lo valida.
 4. Si todo salió bien, lo publica. **Si algo falla, no publica nada y queda online la última versión buena.**
@@ -55,8 +55,10 @@ Nunca escribas el token directo en el comando (`SHOPIFY_ADMIN_TOKEN=shpat_... np
 
 ### Cambiar la frecuencia
 En `.github/workflows/feed.yml`, línea `cron`:
-- Cada 3 h: `'17 */3 * * *'` (actual)
-- Cada 1 h (ej. diciembre): `'17 * * * *'`
+- Cada 1 h: `'17 * * * *'` (actual)
+- Cada 3 h: `'17 */3 * * *'`
+
+**Antes de una difusión grande**, conviene correrlo a mano (*Run workflow*) y esperar unos 5 minutos, para mandar con el stock al día.
 
 El horario está en UTC. Ojo: GitHub puede atrasar unos minutos las corridas programadas.
 
