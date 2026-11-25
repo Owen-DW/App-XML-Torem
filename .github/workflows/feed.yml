@@ -2,9 +2,10 @@ name: Feed XML Monococo
 
 on:
   schedule:
-    # Cada 3 horas, en el minuto 17 (UTC) = 00:17, 03:17, 06:17... hora Argentina.
-    # Para pasar a cada 1 hora: '17 * * * *'
-    - cron: '17 */3 * * *'
+    # Cada 1 hora, en el minuto 17. GitHub puede atrasar o saltear turnos
+    # cuando hay mucha demanda; correr cada hora compensa esos huecos.
+    # Para volver a cada 3 horas: '17 */3 * * *'
+    - cron: '17 * * * *'
   workflow_dispatch: {}
   push:
     branches: [main]
